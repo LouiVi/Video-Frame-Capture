@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="ds:/Sys/app.js"></script>
+    <title>Video Frame Capture</title>
+</head>
+<body>
+    <video id="video" width="100%" height="280" controls>
+        <source src="Misc/Jenna Von Oy.mp4" type="video/mp4">
+        <!-- https://archive.org/download/NASAMissions/NASA Missions.mp4" type="video/mp4">-->
+        Your browser does not support the video tag.
+    </video>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <img id="capturedImage" alt="Captured Frame" width="100%" />
+
+    <script>
+        video = document.getElementById('video');
+        canvas = document.getElementById('canvas');
+        context = canvas.getContext('2d');
+        capturedImage = document.getElementById('capturedImage');
+
+        video.addEventListener('loadedmetadata', () => {
+            // Set the current time to the desired frame (in seconds)
+            video.currentTime = 0; // Capture frame
+            setInterval(()=>{video.currentTime +=1;},  1000);
+        });
+
+        video.addEventListener('seeked', () => {
+            // Draw the current video frame to the canvas
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert canvas to image
+            const dataURL = canvas.toDataURL('image/png');
+            capturedImage.src = dataURL; // Set the image source to the captured frame
+            frame =	document.createElement("img");
+            frame.width="350";
+            frame.height="260";
+            frame.src=dataURL;
+            document.body.appendChild(frame);
+        });
+    </script>
+</body>
+</html>
