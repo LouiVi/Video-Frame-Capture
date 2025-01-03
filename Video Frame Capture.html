@@ -8,7 +8,7 @@
 </head>
 <body>
     <video id="video" width="100%" height="280" controls>
-        <source src="Misc/Jenna Von Oy.mp4" type="video/mp4">
+        <source id= "src" src="Misc/JennaVonOy.mp4" type="video/mp4">
         <!-- https://archive.org/download/NASAMissions/NASA Missions.mp4" type="video/mp4">-->
         Your browser does not support the video tag.
     </video>
@@ -16,15 +16,21 @@
     <img id="capturedImage" alt="Captured Frame" width="100%" />
 
     <script>
+    app.CopyFile( "Misc/JennaVonOy.mp4", "/storage/emulated/0/Download/JennaVonOy.mp4" )
+    app.LoadPlugin("Utils");
+    utils = app.CreateUtils();
+    //alert(utils.GetMethods().split(",").join("\r\n"));
         video = document.getElementById('video');
+        document.getElementById("src").src = "/storage/emulated/0/Download/JennaVonOy.mp4"; //app.LoadPlugin("Utils");//app.GetAppPath() + "Misc/JennaVonOy.mp4";
         canvas = document.getElementById('canvas');
         context = canvas.getContext('2d');
         capturedImage = document.getElementById('capturedImage');
 
         video.addEventListener('loadedmetadata', () => {
+        video.play();
             // Set the current time to the desired frame (in seconds)
-            video.currentTime = 0; // Capture frame
-            setInterval(()=>{video.currentTime +=1;},  1000);
+        //    video.currentTime = 0; // Capture frame
+           // si = setInterval(()=>{video.currentTime +=1;},  1000);
         });
 
         video.addEventListener('seeked', () => {
@@ -37,10 +43,28 @@
             const dataURL = canvas.toDataURL('image/png');
             capturedImage.src = dataURL; // Set the image source to the captured frame
             frame =	document.createElement("img");
-            frame.width="350";
-            frame.height="260";
+            frame.width= capturedImage.width;
+            frame.height= capturedImage.height;
             frame.src=dataURL;
             document.body.appendChild(frame);
+         //   utils.ForceDownload(dataURL, "/storage/emulated/0/Download/" + video.currentTime + ".png");
+        });
+        
+        video.addEventListener('playing', () => {
+            // Draw the current video frame to the canvas
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert canvas to image
+            const dataURL = canvas.toDataURL('image/png');
+            capturedImage.src = dataURL; // Set the image source to the captured frame
+            frame =	document.createElement("img");
+            frame.width= capturedImage.width;
+            frame.height= capturedImage.height;
+            frame.src=dataURL;
+            document.body.appendChild(frame);
+         //   utils.ForceDownload(dataURL, "/storage/emulated/0/Download/" + video.currentTime + ".png");
         });
     </script>
 </body>
