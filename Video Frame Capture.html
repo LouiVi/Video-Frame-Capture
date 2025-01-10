@@ -21,7 +21,7 @@
     utils = app.CreateUtils();
     //alert(utils.GetMethods().split(",").join("\r\n"));
         video = document.getElementById('video');
-        document.getElementById("src").src = "/storage/emulated/0/Download/JennaVonOy.mp4"; //app.LoadPlugin("Utils");//app.GetAppPath() + "Misc/JennaVonOy.mp4";
+        document.getElementById("src").src = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";//"/storage/emulated/0/Download/JennaVonOy.mp4"; //app.LoadPlugin("Utils");//app.GetAppPath() + "Misc/JennaVonOy.mp4";
         canvas = document.getElementById('canvas');
         context = canvas.getContext('2d');
         capturedImage = document.getElementById('capturedImage');
@@ -29,8 +29,8 @@
         video.addEventListener('loadedmetadata', () => {
         video.play();
             // Set the current time to the desired frame (in seconds)
-        //    video.currentTime = 0; // Capture frame
-           // si = setInterval(()=>{video.currentTime +=1;},  1000);
+         video.currentTime = 0; // Capture frame
+           si = setInterval(()=>{video.currentTime +=1;},  1000);
         });
 
         video.addEventListener('seeked', () => {
