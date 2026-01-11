@@ -1,0 +1,236 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Roku Remote</title>
+	<link rel="stylesheet" href="themes/roku.min.css" />
+	<link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile.structure-1.4.5.min.css" />
+	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/browser-xml2js@0.4.19/lib/xml2js.min.js"></script>
+	<script type="text/javascript" >
+		var ROKU_IP = "10.182.241.144";//app.ReadFile( "Remote.txt" );
+		var TV_CHANNELS = "http://" + ROKU_IP + ":8060/query/tv-channels";
+		var APPS_CHANNELS = "http://" + ROKU_IP + ":8060/query/apps";
+		var TV = "http://" + ROKU_IP + ":8060/launch/tvinput.dtv?ch=";
+		var ROKU_TV = "http://" + ROKU_IP + ":8060/";
+		var ROKU_SEARCH = "http://" + ROKU_IP + ":8060/search/browse/?keyword=";
+		var TV_ACTIVE_APP = "http://" + ROKU_IP + ":8060/query/tv-active-channel";
+		var ROKU_KEYPRESS = "http://" + ROKU_IP + ":8060/keypress/";
+		var found = false;
+	</script>
+	<script type="text/javascript">
+function makeApiRequest(method, url, responseFormat, apiToken = "") {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+
+        xhr.open(method, url, true);
+
+        if (responseFormat === 'json') {
+            xhr.setRequestHeader('Accept', 'application/json');
+        } else if (responseFormat === 'xml') {
+            xhr.setRequestHeader('Accept', 'application/xml');
+        } else {
+            xhr.setRequestHeader('Accept', '*/*');
+        }
+        
+        if (apiToken) {
+            xhr.setRequestHeader('Authorization', `Bearer ${apiToken}`);
+        }
+
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                let responseData;
+                if (responseFormat === 'json') {
+                    try {
+                        responseData = JSON.parse(xhr.responseText);
+                    } catch (e) {
+                        reject(new Error('Failed to parse JSON response: ' + e.message));
+                        return;
+                    }
+                } else if (responseFormat === 'xml') {
+                    responseData = xhr.responseXML;
+                } else {
+                    responseData = xhr.responseText;
+                }
+                resolve(responseData);
+            } else {
+                reject(new Error(`Request failed with status ${xhr.status}: ${xhr.statusText}`));
+            }
+        };
+
+        xhr.onerror = function() {
+            reject(new Error('Network error or request failed.'));
+        };
+
+        xhr.send();
+
+    });
+    
+}
+
+function GetRokuInfo() {
+	makeApiRequest('GET', ROKU_TV, 'xml', '').then(data => {
+    console.log('API Response:', data);
+  })
+  .catch(error => {
+    console.error('Error during API request:', error);
+  });
+}
+
+function KeyPress(key) {
+	makeApiRequest('POST', ROKU_KEYPRESS + key, '', '').then(data => {
+    console.log('API Response:', data);
+  })
+  .catch(error => {
+    console.error('Error during API request:', error);
+  });
+}
+
+
+</script>
+</head>
+<body onLoad="GetRokuInfo();">
+	<div id="mainDiv" data-role="page" data-theme="a">
+		<div data-role="header" style="overflow:hidden;">
+			<h1>Roku Remote</h1>
+    		<a href="#" data-icon="gear" class="ui-btn-right">Options</a>
+    		<div data-role="navbar">
+        		<ul>
+            	<li><a id="btnBack" href="#" onclick="KeyPress('Back');">Back</a></li>
+            	<li><a id="btnHome" href="#" onclick="KeyPress('Home');">🏠</a></li>
+            	<li><a id="btnPower" href="#" onclick="KeyPress('Power');">Power</a></li>
+        		</ul>
+ 		   </div>
+		</div>
+		<div data-role="content">	
+			<label for="divVolume">Volume:</label>
+			<div class="ui-grid-b" id="divVolume" name="divVolume">
+
+    			<div class="ui-block-a">
+    				<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+						<a id="btnVolumeMute" href="#" onclick="KeyPress('VolumeMute');" class="ui-btn ui-shadow">🕨</a>
+					</div>
+				</div>
+    			<div class="ui-block-b">
+    				<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+					   <a id="btnVolumeDown" href="#" onclick="KeyPress('VolumeDown');" class="ui-btn ui-shadow">🕩</a>
+    				</div>
+    			</div>
+    			<div class="ui-block-c">
+    				<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+						<a id="btnVolumeUp" href="#" onclick="KeyPress('VolumeUp');" class="ui-btn ui-shadow">🕪</a>
+    				</div>
+    			</div>
+    		</div>
+    		<br />
+    		<div class="ui-grid-b">
+    			<div class="ui-block-a"><div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;"></div></div>
+    			<div class="ui-block-b">
+    				<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+    					<a id="btnUp" href="#" onclick="KeyPress('Up');" class="ui-btn ui-shadow">🠉</a>
+    				</div>
+    			</div>
+    			
+    			<div class="ui-block-c"><div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;"></div></div>
+    			
+    			<div class="ui-block-a">
+    				<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+    					<a id="btnLeft" href="#" onclick="KeyPress('Left');" class="ui-btn ui-shadow">🠈</a>
+    				</div>
+    			</div>
+    			<div class="ui-block-b">
+    				<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+    					<a id="btnOk" href="#" onclick="KeyPress('Select');" class="ui-btn ui-shadow">OK</a>
+    				</div>
+    			</div>
+    			<div class="ui-block-c">
+    				<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+    					<a id="btnRight" href="#" onclick="KeyPress('Right');" class="ui-btn ui-shadow">🠊</a>
+    				</div>
+    			</div>
+    			
+    			<div class="ui-block-a"><div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;"></div></div>
+    			<div class="ui-block-b">
+    				<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+    					<a id="btnDown" href="#" onclick="KeyPress('Down');" class="ui-btn ui-shadow">🠋</a>
+    				</div>
+    			</div>
+    			<div class="ui-block-c"><div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;"></div></div>
+
+			</div>
+			<br />
+			
+			<div class="ui-grid-b">
+    			<div class="ui-block-a">
+    				<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+						<a id="btnInstantReplay" href="#" onclick="KeyPress('InstantReplay');" class="ui-btn ui-shadow">⭮</a>
+    				</div>
+    			</div>
+    			<div class="ui-block-b">
+    				<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+    					<a id="btnSleep" href="#" onclick="KeyPress('Sleep');" class="ui-btn ui-shadow">🕛</a>
+    				</div>
+    			</div>
+    			
+    			<div class="ui-block-c">
+	    			<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+	    				 <a id="btnSettings" href="#" onclick="KeyPress('Info');" class="ui-btn ui-shadow">🞿</a>
+	    			</div>
+    			</div>
+    			
+    			<div class="ui-block-a">
+    				<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+    					<a id="btnLeft" href="#" onclick="KeyPress('Rev');" class="ui-btn ui-shadow">Rev</a>
+    				</div>
+    			</div>
+    			<div class="ui-block-b">
+    				<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+    					<a id="btnOk" href="#" onclick="KeyPress('Play');" class="ui-btn ui-shadow">Play</a>
+    				</div>
+    			</div>
+    			<div class="ui-block-c">
+    				<div class="ui-bar ui-bar-a" style="height:60px; font-size: 8px;">
+    					<a id="btnRight" href="#" onclick="KeyPress('Fwd');" class="ui-btn ui-shadow">Fwd</a>
+    				</div>
+    			</div>
+    			
+			</div>	
+			<br />
+			<!--
+			<div class="ui-grid-c">
+    			<div class="ui-block-a"><div class="ui-bar ui-bar-a" style="height:60px">Block A</div></div>
+    			<div class="ui-block-b"><div class="ui-bar ui-bar-a" style="height:60px">Block B</div></div>
+    			<div class="ui-block-c"><div class="ui-bar ui-bar-a" style="height:60px">Block C</div></div>
+    			<div class="ui-block-d"><div class="ui-bar ui-bar-a" style="height:60px">Block D</div></div>
+			</div>
+			-->
+			<p></p>
+			<fieldset data-role="controlgroup"  data-type="horizontal" data-role="fieldcontain">
+			<legend>Theme:</legend>
+			<input type="radio" name="radio-choice-a1" id="radio-choice-a1" value="a" checked="checked" />
+			<label for="radio-choice-a1">Light</label>
+			<input type="radio" name="radio-choice-a1" id="radio-choice-b1" value="c" />
+			<label for="radio-choice-b1">Dark</label>
+			</fieldset>
+			
+		</div>
+		<div data-role="footer" style="overflow:hidden;" data-position="fixed">
+			<h1>Copyright &copy; 2025.</h1>
+		</div>
+	</div>
+	<script type="text/javascript" >
+	$('input[type="radio"]').on('change', function() {
+	    var newTheme = $(this).val();
+	    var $page = $('#mainDiv'); 
+	    var oldTheme = $page.attr('data-theme');
+	    if (oldTheme) {
+	        $page.removeClass('ui-page-theme-' + oldTheme);
+	    }
+	    $page.addClass('ui-page-theme-' + newTheme);
+	    $page.attr('data-theme', newTheme);
+	});
+	</script>
+</body>
+</html>
